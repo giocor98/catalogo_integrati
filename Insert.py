@@ -1,4 +1,5 @@
 import urllib.request as ur
+import Naviga as Nv
 from bs4 import BeautifulSoup
 import json
 #import urllib2
@@ -9,6 +10,7 @@ main_link = "http://www.alldatasheet.com/view.jsp?Searchword="
 Catalogo = list()
 Actual_Circuit_Impostation = dict()
 CatalogFile = "./data/Catalog.json"
+FirstId = 0
 
 def SaveCatalog():
     global Catalogo
@@ -26,9 +28,11 @@ def SaveCatalog():
 def ReadCatalog():
     global Catalogo
     global CatalogFile
+    global FirstId
     try:
         with open(CatalogFile, 'r') as filehandle:
             Catalogo = json.load(filehandle)
+        FirstId = Catalogo[-1]["id"] + 1
     except:
         print("!!! Attenzione: non sono riuscito a trovare il catalogo!!")
 
@@ -69,17 +73,27 @@ def ImpostaActualImpostation():
         SetActualImpostation(par[0], par[1], par[2], par[3])
     return
 
+#funzionne che printa il chip passatole per parametro; p_cat indica se deve printare pure le categorie del chip o meno
+def PrintChip(Chip, p_cat= 0):
+    print("Nome : " + Chip["nome"] + "\t\t\t|| id: " + str(Chip["id"]))
+    print("Descrizione : " + Chip["descrizione"])
+    if (p_cat !=0):
+        print("Categorie:")
+        for cat in Chip["categoria"]:
+            print("\t\t"+ cat)
+    print("DS : " + Chip["DS_link"])
+    print("Nummero pezzi : " + str(Chip["N_pezzi"]))
+    print("Locazione : " + Chip["luogo"])
+    if (Chip["soglia_critica"]>0):
+        print("Soglia Critica: " + str(Chip["soglia_critica"]))
+        if (Chip["soglia_critica"]<Chip["N_pezzi"]):
+            print("!!Siamo sotto la soglia critica!!")
+
 def PrintCatalog():
     global Catalogo
     print("Esistono " + str(len(Catalogo)) + " circuiti catalogati:")
     for C in Catalogo:
-        print("Nome : " + C["nome"])
-        print("Descrizione : " + C["descrizione"])
-        #print("categorie : " + C["categoria"])
-        print("DS : " + C["DS_link"])
-        print("Nummero pezzi : " + str(C["N_pezzi"]))
-        print("Locazione : " + C["luogo"])
-        print("Soglia : " + str(C["soglia_critica"]))
+        PrintChip(C)
         print()
         print()
 
@@ -94,6 +108,7 @@ def CalcCategoria (desc):
 
 def AddCircuit(spec):
     global Catalogo
+    global FirstId
     Circuit = dict()
     Circuit["nome"] = spec["nome"]
     Circuit["descrizione"] = spec["descrizione"]
@@ -119,14 +134,15 @@ def AddCircuit(spec):
     Circuit["N_pezzi"] = n
     Circuit["luogo"] = Actual_Circuit_Impostation["luogo"]
     Circuit["soglia_critica"] = Actual_Circuit_Impostation["soglia_critica"]
-
+    Circuit["id"] = FirstId
+    FirstId = FirstId+1
     Catalogo.append(Circuit)
     return
 
 def insert():
     global  main_link
     #inserisce il circuito nel catalogo
-    nome = input("Inserire nome del circuito ['' per ucire]")
+    nome = input("Inserire nome del circuito ['' per ucire]\n")
     if ((type(nome) != str) or (len(nome) == 0)):
         #se il nome inserito no è valido ritorna al chiamante
         return
@@ -210,6 +226,7 @@ def insert():
 
 def main():
     global goon
+    global Catalogo
     #Setta Variabili globali:
     SetActualImpostation()
     #Carica catalogo
@@ -218,7 +235,7 @@ def main():
     #scegliere azione:
     while (goon !=0):
         #Sceglie azione
-        action = input("Prossima azione? [I -> inserisci, E -> exit]\n")
+        action = input("Prossima azione? [I -> inserisci, Q -> exit, N -> naviga]\n")
         if (type(action)!= str):
             print("Errore: scelta non valida: non è una stringa")
             print(action)
@@ -230,7 +247,7 @@ def main():
         try:
             action = action.lower()
         except:
-            print("Errore: scelta non valida, e/E per uscire [non hai inserito una stringa]")
+            print("Errore: scelta non valida, q/Q per uscire [non hai inserito una stringa]")
             print(action)
             continue
 
@@ -242,34 +259,31 @@ def main():
         if(action == "i"):
             #se scelto i/I inserisci circuito
             insert()
-        elif(action == "e"):
-            #se scelto e/E esce dal programma
-            goon = 0;
         elif(action == "s"):
             #se scelto s/S vado a impostare il Actual_Circuit_Impostation
             ImpostaActualImpostation()
         elif(action == "p"):
             #se scelto p/P printa il catalogo
             PrintCatalog()
+        elif (action=="n"):
+            Catalogo = Nv.naviga(Catalogo)
+        elif (action == "e"):
+            #Se scelto e/E informo che per uscire bisogna usare q
+            print("Per uscire devi premere q")
         elif(action == "q"):
-            #se scelto q/Q salvo il catalogo
+            #se scelto q/Q salvo il catalogo e esco
             answ = ""
             while((answ!="y") and (answ!="n")):
-                answ = (input("Vuoi salvare il catalogo aggiornato? [ y/n]")).lower()
+                answ = (input("Vuoi salvare il catalogo aggiornato? [y/n]")).lower()
             if (answ == "y"):
                 SaveCatalog()
+            while((answ!="y") and (answ!="n")):
+                answ = (input("Vuoi uscire dal programma? [y/n]")).lower()
+            if (answ == "y"):
+                goon = 0
         else:
-            print("Errore: scelta non valida, e/E per uscire")
+            print("Errore: scelta non valida, q/Q per uscire")
             continue
-    answ = ""
-    while((answ!="y") and (answ!="n")):
-        answ = (input("Do you want to save before quitting? [ y/n]")).lower()
-    if (answ == "y"):
-        SaveCatalog()
-
-
-
-
 
 main()
 # http://www.alldatasheet.com/view.jsp?Searchword=ATMEGA328

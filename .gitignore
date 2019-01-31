@@ -3,5 +3,6 @@
 #I'll ignore the data file containing the catalog from being gitted
 #The data files are in the directory /data
 /data/*
+/__pycache__/*
 #Maybe,  later, I'll set a file for configuration that must be gitted
 #!/data/config
