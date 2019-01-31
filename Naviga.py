@@ -55,7 +55,7 @@ def Completa(mod, field, val):
                             clist.append(x[field].lower())
                     elif (mod == 1):
                         clist.append(i)
-            elif type(x[field]) == str:
+            elif type(x[field]) == list:
                 for p in x[field]:
                     if val in p.lower():
                         if (mod == 0):
@@ -136,16 +136,52 @@ def Cerca():
             elif (answ2 == 'q'):
                 tmp = 0
 
+#funzionne che printa il chip passatole per parametro; p_cat indica se deve printare pure le categorie del chip o meno
+def PrintChip(Chip, p_cat= 0):
+    print("Nome : " + Chip["nome"] + "\t\t\t|| id: " + str(Chip["id"]))
+    print("Descrizione : " + Chip["descrizione"])
+    if (p_cat !=0):
+        print("Categorie:")
+        for cat in Chip["categoria"]:
+            print("\t\t"+ cat)
+    print("DS : " + Chip["DS_link"])
+    print("Nummero pezzi : " + str(Chip["N_pezzi"]))
+    print("Locazione : " + Chip["luogo"])
+    if (Chip["soglia_critica"]>0):
+        print("Soglia Critica: " + str(Chip["soglia_critica"]))
+        if (Chip["soglia_critica"]<Chip["N_pezzi"]):
+            print("!!Siamo sotto la soglia critica!!")
+
+def Elenca():
+    global Catalogo
+    global SelectedList
+    salta = 0
+    for x in SelectedList:
+        elem = Catalogo[x]
+        PrintChip(elem, 1)
+        if (salta == 0):
+            answ = ""
+            while(answ!="y"):
+                answ = (input("Contiuo?[y/e/s]")).lower()
+                if (answ == "e"):
+                    return
+                elif (answ == "s"):
+                    salta = 1
+                    answ = "y"
+
+
 def Imposta():
     global SelectedList
     global Catalogo
     print("!! seleezionati " + str(len(SelectedList)) + "elementi")
     tmp = 1
     while(tmp):
-        answ = input("Cosa faccio? [u ->deseleziona, r -> rimuovi, q -> esci]")
+        answ = input("Cosa faccio? [u ->deseleziona, r -> rimuovi, q -> esci, p -> printa]")
         if (answ == "u"):
             tmp = 0;
             SelectedList = list()
+        elif(answ == "p"):
+            Elenca()
         elif(answ == "r"):
             ListaId= list()
             for x in SelectedList:

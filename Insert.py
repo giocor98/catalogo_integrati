@@ -139,6 +139,17 @@ def AddCircuit(spec):
     Catalogo.append(Circuit)
     return
 
+def ManualInsert():
+    spec = dict()
+    print("Inserimento manuale del ciruito")
+    spec["nome"] = input("Inserire nome del cirtuito")
+    spec["descrizione"] = input("Innserire descrizione del circuito")
+    spec["DS_link"] = input("Inserire link a DataSheet ('' se non disponibile)")
+    answ = input("Completo l'inserimento?[y/n]")
+    if (answ.lower() == "y"):
+        AddCircuit(spec)
+    return
+
 def insert():
     global  main_link
     #inserisce il circuito nel catalogo
@@ -270,6 +281,8 @@ def main():
         elif (action == "e"):
             #Se scelto e/E informo che per uscire bisogna usare q
             print("Per uscire devi premere q")
+        elif (action=="m"):
+            ManualInsert()
         elif(action == "q"):
             #se scelto q/Q salvo il catalogo e esco
             answ = ""
