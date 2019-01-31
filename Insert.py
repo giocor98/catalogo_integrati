@@ -36,6 +36,15 @@ def ReadCatalog():
     except:
         print("!!! Attenzione: non sono riuscito a trovare il catalogo!!")
 
+def SearchName(name):
+    global Catalogo
+    i = 0
+    for x in Catalogo:
+        if x["nome"].lower() == name.lower():
+            return i
+        i = i+1
+    return "NULL"
+
 
 def SetActualImpostation(luogo = "", categoria = list(), SogliaCritica = 0, numero_pezzi = 0):
     global Actual_Circuit_Impostation
@@ -110,6 +119,25 @@ def AddCircuit(spec):
     global Catalogo
     global FirstId
     Circuit = dict()
+    i = SearchName(spec["nome"])
+    if type(i) == int:
+        print("!!!! ATTENZIONE !!!\nEsiste già un circuito con lo stesso nome:")
+        PrintChip(Catalogo[i])
+        tmp = 1
+        while tmp:
+            answ = (input("Cosa faccio? c-> cra nuovo, a -> aggiunngi pezzi al precedennte")).lower()
+            if answ == "a":
+                answ = input("quanti pezzi aggiungo?")
+                try:
+                    answ = int(answ)
+                    Catalogo[i]["N_pezzi"] = Catalogo[i]["N_pezzi"] + answ
+                    tmp = 0
+                    print("attualmente ci sono " + str(Catalogo[i]["N_pezzi"]) + " pezzi")
+                    return
+                except:
+                    print("Inserimento non valido")
+            elif answ == "c":
+                tmp = 0
     Circuit["nome"] = spec["nome"]
     Circuit["descrizione"] = spec["descrizione"]
     Circuit["categoria"] = CalcCategoria(spec["descrizione"])
@@ -290,6 +318,7 @@ def main():
                 answ = (input("Vuoi salvare il catalogo aggiornato? [y/n]")).lower()
             if (answ == "y"):
                 SaveCatalog()
+            answ =""
             while((answ!="y") and (answ!="n")):
                 answ = (input("Vuoi uscire dal programma? [y/n]")).lower()
             if (answ == "y"):
