@@ -2,7 +2,7 @@ import urllib.request as ur
 import Naviga as Nv
 from bs4 import BeautifulSoup
 import json
-#import urllib2
+import os
 
 #Variabile per far continuare l'esecuzione
 goon = 1
@@ -10,14 +10,21 @@ main_link = "http://www.alldatasheet.com/view.jsp?Searchword="
 Catalogo = list()
 Actual_Circuit_Impostation = dict()
 CatalogFile = "./data/Catalog.json"
+TmpFile = "./data/.tmpCatalog.json"
 FirstId = 0
 
 def SaveCatalog():
     global Catalogo
     global CatalogFile
+    global TmpFile
     try:
         with open(CatalogFile, 'w') as filehandle:
             json.dump(Catalogo, filehandle)
+        try:
+            os.remove(TmpFile)
+            print("Eliminato file temporaneo")
+        except:
+            print("Non c'è file temporaneo.\nCatalogo salvato correttamente")
     except:
         print("!!! Attenzione,  non sono riuscito a trovare il file per salvare!!")
         print("nome file: " + CatalogFile)
@@ -25,11 +32,32 @@ def SaveCatalog():
         if answ =="r":
             SaveCatalog()
 
+
+def SaveTmp():
+    global Catalogo
+    global TmpFile
+    try:
+        with open(TmpFile, 'w') as filehandle:
+            json.dump(Catalogo, filehandle)
+    except:
+        print("non hosalvato sul file temporaneo")
+
 def ReadCatalog():
     global Catalogo
     global CatalogFile
     global FirstId
+    global TmpFile
     try:
+        try:
+            f = open(TmpFile, 'r')
+            a = (input("Ripristino il file emporano?")).lower()
+            if a == "y":
+                Catalogo = json.load(f)
+                f.close()
+                return
+            f.close()
+        except:
+            Catalogo= Catalogo
         with open(CatalogFile, 'r') as filehandle:
             Catalogo = json.load(filehandle)
         FirstId = Catalogo[-1]["id"] + 1
@@ -165,6 +193,7 @@ def AddCircuit(spec):
     Circuit["id"] = FirstId
     FirstId = FirstId+1
     Catalogo.append(Circuit)
+    SaveTmp()
     return
 
 def ManualInsert():

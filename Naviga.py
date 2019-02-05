@@ -24,8 +24,9 @@ def AddToList(listaElementi):
             elif (answ == "c"):
                 tmp = 0
             elif (answ == "m"):
+                print("DS: " + Catalogo[x]["DS_link"])
                 print("Categorie:")
-                for i  in Catalogo[n]["categoria"]:
+                for i  in Catalogo[x]["categoria"]:
                     print("\t" + i)
             elif(answ == "a"):
                 SelectAll = 1
